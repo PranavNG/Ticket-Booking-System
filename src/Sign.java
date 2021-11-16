@@ -1,7 +1,6 @@
 package Signup;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -26,7 +25,6 @@ public class Sign {
 	public JPasswordField passwordField;
 	private JPasswordField passwordField_1;
 	public int ln;
-
 	/**
 	 * Launch the application.
 	 */
@@ -124,7 +122,6 @@ public class Sign {
 		btnCreate.setBackground(Color.GREEN);
 		btnCreate.addActionListener(new ActionListener() 
 		{
-
 			public void actionPerformed(ActionEvent args0) 
 			{
 				try{
@@ -138,9 +135,9 @@ public class Sign {
 					if(password.equals(password1))
 					{
 						Statement st = con.createStatement();
-			        	String sql ="insert into Customer values(1, '"+name+"', '"+email+"', '"+usname+"', '"+password+"')";
-			        	st.executeUpdate(sql);
-			        	frame.dispose();
+			        		String sql ="insert into Customer values(1, '"+name+"', '"+email+"', '"+usname+"', '"+password+"')";
+			        		st.executeUpdate(sql);
+			        		frame.dispose();
 					}
 					if(name.isEmpty()|| usname.isEmpty() || password.isEmpty() || password1.isEmpty())
 					{
