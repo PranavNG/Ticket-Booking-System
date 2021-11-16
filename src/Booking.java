@@ -1,33 +1,27 @@
 package Booking;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
 import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import java.awt.Color;
 import javax.swing.JSeparator;
-import javax.swing.JCheckBox;
 import javax.swing.border.LineBorder;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.sql.*;
 import com.toedter.calendar.JDateChooser;
-
-import Signup.Sign;
+import loginsys.loginsys;
 
 public class Booking {
 
@@ -40,6 +34,7 @@ public class Booking {
 	public boolean hasData = false;
 	protected String destination;
 	protected String source;
+	protected int adult,child;
 	protected String Total;
 
 	/**
@@ -57,49 +52,8 @@ public class Booking {
 			}
 		});
 	}
-	/*public ResultSet displayUsers() throws ClassNotFoundException, SQLException{
-		if(con==null){
-			getConnection();
-		}
-		Statement state= con.createStatement();
-		ResultSet res=state.executeQuery("SELECT user, from, to, date, price FROM tdetail");
-		return res;
-	}
-	private void getConnection() throws ClassNotFoundException, SQLException{
-		Class.forName("org.sqlite.JDBC");
-		con = DriverManager.getConnection("jdbc:sqlite:Booking.db");
-		intialize();
-	}
-
-	private void intialize() throws SQLException {
-		if(!hasData){
-			hasData= true;
-			Statement state= con.createStatement();
-			ResultSet res= state.executeQuery("SELECT name FROM sqlite_master WHERE type=:table AND name=:tdetail"); 
-			if(!res.next())
-			{
-				Statement state2= con.createStatement();
-				state2.execute("CREATE TABLE tdetail(user varchar(22), from varchar(10), to varchar(10), date varchar(15), price varchar(15), primary key(user));");
-				PreparedStatement prep= con.prepareStatement("INSERT INTO tdetail values(?,?,?,?,?)");
-				prep.setString(2,Sign.usname);
-				prep.setString(3,destination);
-				prep.setString(4, source);
-				prep.setString(5, Total);
-				prep.execute();
-			}
-		}
-	}
-	public void addUser() throws ClassNotFoundException, SQLException{
-		if(con==null)
-		{
-			getConnection();
-		}
-		PreparedStatement prep= con.prepareStatement("INSERT INTO detail values(?,?,?,?,?)");
-		prep.setString(3, source);
-		prep.setString(4, destination);
-		prep.execute();
-	}*/
-	public Booking() {
+	public Booking()
+	{
 		initialize();
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -117,10 +71,10 @@ public class Booking {
 		
 		JComboBox comboBox = new JComboBox();
 		comboBox.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		comboBox.addItem("Bengaluru");
+		comboBox.addItem("Bangalore");
 		comboBox.addItem("Chennai");
 		comboBox.addItem("Mumbai");
-		comboBox.addItem("Kolkata");
+		comboBox.addItem("Trivandrum");
 		comboBox.addItem("Delhi");
 		comboBox.setSelectedItem(null);
 		comboBox.setBounds(28, 103, 170, 26);
@@ -136,7 +90,7 @@ public class Booking {
 		comboBox_1.addItem("Bengaluru");
 		comboBox_1.addItem("Chennai");
 		comboBox_1.addItem("Mumbai");
-		comboBox_1.addItem("Kolkata");
+		comboBox_1.addItem("Trivandrum");
 		comboBox_1.addItem("Delhi");
 		comboBox_1.setSelectedItem(null);
 		comboBox_1.setBounds(257, 103, 170, 26);
@@ -150,12 +104,6 @@ public class Booking {
 		JSeparator separator = new JSeparator();
 		separator.setBounds(15, 150, 657, 2);
 		frame.getContentPane().add(separator);
-		
-		JCheckBox chckbxReturnJourney = new JCheckBox("Return Journey");
-		chckbxReturnJourney.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		chckbxReturnJourney.setBounds(15, 170, 183, 29);
-		frame.getContentPane().add(chckbxReturnJourney);
-		
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(new Color(0, 0, 0), 3, true));
 		panel.setBounds(0, 0, 982, 51);
@@ -243,14 +191,6 @@ public class Booking {
 				}
 				else
 				{
-					if(chckbxReturnJourney.isSelected())
-					{
-						lblNewLabel_8.setText("Yes");
-					}
-					else
-					{
-						lblNewLabel_8.setText("No");
-					}
 					if(source==destination)
 					{
 						JOptionPane.showMessageDialog(null,"Source and Destination cannot be same.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -320,79 +260,43 @@ public class Booking {
 		lblChild.setBounds(281, 334, 69, 20);
 		frame.getContentPane().add(lblChild);
 		
-		JLabel lblReturn = new JLabel("Return");
-		lblReturn.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblReturn.setBounds(281, 432, 69, 20);
-		frame.getContentPane().add(lblReturn);
-		
 		JLabel lblDate = new JLabel("Date");
 		lblDate.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		lblDate.setBounds(15, 432, 69, 20);
 		frame.getContentPane().add(lblDate);
 
 		JButton btnSubmit = new JButton("Submit");
-		btnSubmit.addActionListener(new ActionListener() {
+		btnSubmit.addActionListener(new ActionListener() 
+		{
 			public void actionPerformed(ActionEvent arg0) {
-				int adult = Integer.parseInt(textField_10.getText());
-				int child = Integer.parseInt(textField_11.getText());
-				int subtotal=0;
-				destination =lblNewLabel_5.getText();
-				source = lblNewLabel_4.getText();
-				if(destination.equals("Bengaluru") && source.equals("Chennai") || source.equals("Bengaluru") && destination.equals("Chennai"))
+				try
 				{
-					subtotal= (adult*500)+(child*350);
-				}
-				else if(destination.equals("Bengaluru") && source.equals("Mumbai") || source.equals("Bengaluru") && destination.equals("Mumbai"))
+					adult = Integer.parseInt(textField_10.getText());
+					child = Integer.parseInt(textField_11.getText());
+					int cost=0;double subtotal;
+					destination =lblNewLabel_5.getText();
+					source = lblNewLabel_4.getText();
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/miniproject?useSSL=false", "root","mini_project1");
+					String sq ="select * from Train where Source = '"+source +"' and Destination = '"+destination+"'";
+					PreparedStatement p = con.prepareStatement(sq);
+					ResultSet rs = p.executeQuery();
+					if(rs.next())
+					{
+						cost = rs.getInt("Cost");
+					}
+					subtotal = adult*cost + child *(cost- cost*0.25);
+					String stotal = Double.toString(subtotal);
+					lblNewLabel_10.setText(stotal);
+					lblNewLabel_11.setText("5%");
+					double total= (0.05*subtotal)+subtotal;
+					Total=Double.toString(total);
+					lblNewLabel_12.setText(Total);
+					count++;
+				}catch(Exception e)
 				{
-					subtotal= (adult*700)+(child*450);
+					System.out.println(e.getMessage());
 				}
-				else if(destination.equals("Bengaluru") && source.equals("Delhi") || source.equals("Bengaluru") && destination.equals("Delhi"))
-				{
-					subtotal= (adult*1100)+(child*700);
-				}
-				else if(destination.equals("Bengaluru") && source.equals("Kolkata") || source.equals("Bengaluru") && destination.equals("Kolkata"))
-				{
-					subtotal= (adult*1400)+(child*1000);
-				}
-				else if(destination.equals("Chennai") && source.equals("Mumbai") || source.equals("Chennai") && destination.equals("Mumbai"))
-				{
-					subtotal= (adult*1100)+(child*900);
-				}
-				else if(destination.equals("Chennai") && source.equals("Delhi") || source.equals("Chennai") && destination.equals("Delhi"))
-				{
-					subtotal= (adult*1250)+(child*920);
-				}
-				else if(destination.equals("Chennai") && source.equals("Kolkata") || source.equals("Chennai") && destination.equals("Kolkata"))
-				{
-					subtotal= (adult*1550)+(child*1150);
-				}
-				else if(destination.equals("Mumbai") &&source.equals("Delhi") || source.equals("Mumbai") && destination.equals("Delhi"))
-				{
-					subtotal= (adult*500)+(child*350);
-				}
-				else if(destination.equals("Mumbai") && source.equals("Kolkata") || source.equals("Mumbai") && destination.equals("Kolkata"))
-				{
-					subtotal= (adult*1100)+(child*700);
-				}
-				else if(destination.equals("Delhi") && source.equals("Kolkata") || source.equals("Delhi") && destination.equals("Kolkata"))
-				{
-					subtotal= (adult*700)+(child*450);
-				}
-				else if(destination.equals("Bengaluru") && source.equals("Mumbai") || source.equals("Bengaluru") && destination.equals("Mumbai"))
-				{
-					subtotal= (adult*700)+(child*450);
-				}
-				if(chckbxReturnJourney.isSelected())
-				{
-					subtotal=subtotal*2;
-				}
-				String stotal = Integer.toString(subtotal);
-				lblNewLabel_10.setText(stotal);
-				lblNewLabel_11.setText("5%");
-				double total= (0.05*subtotal)+subtotal;
-				Total=Double.toString(total);
-				lblNewLabel_12.setText(Total);
-				count++;
 			}
 		});
 		btnSubmit.setFont(new Font("MS Reference Sans Serif", Font.BOLD, 20));
@@ -414,7 +318,6 @@ public class Booking {
 				dateChooser.setDate(null);
 				textField_10.setText(null);
 				textField_11.setText(null);
-				chckbxReturnJourney.setSelected(false);
 				lblNewLabel_10.setText(null);
 				lblNewLabel_11.setText(null);
 				lblNewLabel_12.setText(null);
@@ -451,20 +354,38 @@ public class Booking {
 		JButton btnPay = new JButton("PAY");
 		btnPay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(count<1)
-					{
-					JOptionPane.showMessageDialog(null,"One or More Fields are empty.", "Error", JOptionPane.ERROR_MESSAGE);
+				try{
+					loginsys obj = new loginsys();
+					String uname = obj.username;
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/miniproject?useSSL=false", "root","mini_project1");
+					int bid = (int)Math.random();
+					int tid = 0, cid=0;
+					if(count >= 1){
+						String sq ="select Train_ID from Train where Source = '"+source +"' and Destination = '"+destination+"'";
+			        	String s = "select Cust_ID from Customer where Username = '"+uname+"'";
+						PreparedStatement p = con.prepareStatement(sq);
+						PreparedStatement ps = con.prepareStatement(s);
+						ResultSet rs = p.executeQuery();
+						if(rs.next())
+						{
+							tid = rs.getInt("Train_ID");
+						}
+						ResultSet r = ps.executeQuery();
+						if(r.next())
+						{
+							cid = r.getInt("Cust_ID");
+						}
+						LocalDate date =java.time.LocalDate.now(); 
+						Statement st = con.createStatement();
+			        	String sql ="insert into Booking values('"+bid+"','"+cid+"','"+tid+"','"+source+"','"+ destination+"','"+adult +"','"+child +"', '"+Total +"','"+date+"' )";
+			        	st.executeUpdate(sql);
+			        	JOptionPane.showMessageDialog(null, "Payment done...","Hurray!", JOptionPane.INFORMATION_MESSAGE);
 					}
-				else
+				}catch(SQLException | ClassNotFoundException er)
 				{
-					JOptionPane.showMessageDialog(null, "Payment done...","Hurray!", JOptionPane.INFORMATION_MESSAGE);
+					System.out.println(er.getMessage());
 				}
-				/*try {
-					addUser();
-				} catch (ClassNotFoundException | SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}*/
 			}
 		});
 		btnPay.setFont(new Font("Tahoma", Font.PLAIN, 25));
@@ -477,106 +398,34 @@ public class Booking {
 		
 		JLabel lblAdult = new JLabel("Adult");
 		lblAdult.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblAdult.setBounds(226, 174, 57, 20);
+		lblAdult.setBounds(28, 174, 57, 20);
 		frame.getContentPane().add(lblAdult);
 		
 		textField_10 = new JTextField();
 		textField_10.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		textField_10.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent evt) {
-				String adult = textField_10.getText();
-				int n=adult.length();	
-				char b=evt.getKeyChar();
-				if(b>='0' && b<='4')
-				{
-					if(n<1)
-					{
-						textField_10.setEditable(true);
-					}else
-					{
-						textField_10.setEditable(false);
-					}
-				}else
-				{
-					if(evt.getExtendedKeyCode()==KeyEvent.VK_BACK_SPACE || evt.getExtendedKeyCode()==KeyEvent.VK_DELETE)
-					{
-						textField_10.setEditable(true);
-					}else
-					{
-						textField_10.setEditable(false);
-					}
-				}
-			}
-		});
-		textField_10.setBounds(230, 199, 106, 26);
+		textField_10.setBounds(38, 198, 106, 26);
 		frame.getContentPane().add(textField_10);
 		textField_10.setColumns(10);
 		
 		JLabel lblChild_1 = new JLabel("Child");
 		lblChild_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblChild_1.setBounds(365, 176, 69, 20);
+		lblChild_1.setBounds(226, 174, 69, 20);
 		frame.getContentPane().add(lblChild_1);
 		
 		textField_11 = new JTextField();
-		textField_11.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				String child = textField_11.getText();
-				int n=child.length();	
-				char b=e.getKeyChar();
-				if(b>='0' && b<='4')
-				{
-					if(n<1)
-					{
-						textField_11.setEditable(true);
-					}else
-					{
-						textField_11.setEditable(false);
-					}
-				}else
-				{
-					if(e.getExtendedKeyCode()==KeyEvent.VK_BACK_SPACE || e.getExtendedKeyCode()==KeyEvent.VK_DELETE)
-					{
-						textField_11.setEditable(true);
-					}else
-					{
-						textField_11.setEditable(false);
-					}
-				}
-			}
-		});
 		textField_11.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		textField_11.setBounds(375, 198, 106, 26);
+		textField_11.setBounds(257, 198, 106, 26);
 		frame.getContentPane().add(textField_11);
 		textField_11.setColumns(10);
 		
 		JButton btnDetails = new JButton("Details");
 		btnDetails.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				/*try {
-					displayUsers();
-				} catch (ClassNotFoundException | SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				ResultSet rs;
-				try {
-					rs = displayUsers();
-					while(rs.next()){
-						System.out.println(rs.getString("user")+ " "+ rs.getString("from")+" "+ rs.getString("to"));
-					}
-				} catch (ClassNotFoundException | SQLException e) {
-					e.printStackTrace();
-				}*/
 				
 			}
-			
 		});
 		btnDetails.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnDetails.setBounds(577, 476, 94, 29);
-		frame.getContentPane().add(btnDetails);
-		
-				
+		frame.getContentPane().add(btnDetails);	
 	}
 }
