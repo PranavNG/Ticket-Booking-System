@@ -1,14 +1,15 @@
 package loginsys;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
-
 import Booking.Booking;
-import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -29,8 +30,7 @@ public class loginsys {
 	private JLabel lblOr;
 	private JSeparator separator_1;
 	public int ln;
-	public String line;
-
+	public String line,username;
 	/**
 	 * Launch the application.
 	 */
@@ -46,115 +46,15 @@ public class loginsys {
 			}
 		});
 	}
-
 	/**
 	 * Create the application.
 	 */
 	public loginsys() {
 		initialize();
 	}
-
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	void checkdata(String username, String password)
-	{
-		String search=textField.getText();
-		int count=0;
-		File f= new File("D:\\Pranav\\Java workspace\\Login_System\\creds.txt");
-		try 
-		{
-			RandomAccessFile raf=new RandomAccessFile(f,"rw");
-			while((line=raf.readLine()) != null )
-			{
-				String[]words = line.split(" ");
-				for(String word: words)
-				{
-					if (word.equals(search)) 
-					{
-						count++;
-					}
-				}
-			}
-			if(count>0)
-			{
-				int countline=0,countbuffer=0;
-				int b=0;String text="";
-				try 
-				{
-					raf = new RandomAccessFile(f,"rw");
-					while((line=raf.readLine()) != null )
-					{
-						countline++;
-						String[]words = line.split(" ");
-						for(String word: words)
-						{
-							if (word.equals(search)) 
-							{
-			                    countbuffer++;
-							}
-							if(countbuffer>0)
-							{
-								countbuffer=0;
-								b+=countline;
-							}
-						}
-					}
-			        raf = new RandomAccessFile(f,"rw");
-					for(int a=1;a<12;a++)
-					{
-						if(a == b)
-						{
-							text =raf.readLine(); 
-						}
-						else{
-							raf.readLine();
-						}
-					}
-					int c=search.length();
-					String check=text.substring(c+1);
-					if(password.equals(check))
-					{
-						@SuppressWarnings("unused")
-						Booking site= new Booking();
-						Booking.main(null);
-					}
-					else 
-					{
-						JOptionPane.showMessageDialog(null, "Password incorrect!","Login Error", JOptionPane.INFORMATION_MESSAGE);
-						passwordField.setText(null);
-					}
-				}
-				catch (IOException e) 
-				{
-					e.printStackTrace();
-				}
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(null, "Account not Found.","Login Error", JOptionPane.INFORMATION_MESSAGE);
-			}
-		}
-		catch(IOException e){
-			e.printStackTrace();
-
-		}
-	}
-	void countlines(){
-		File f= new File("D:\\Pranav\\Java workspace\\Login_System.txt");
-		try {
-			ln=0;
-			RandomAccessFile raf=new RandomAccessFile(f,"rw");
-			for(int i=0;raf.readLine()!=null;i++){
-				ln++;
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Ticket Booking");
@@ -203,19 +103,35 @@ public class loginsys {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				String username = textField.getText();
-				String password = new String(passwordField.getPassword());
-		        countlines();
-		        if(password.isEmpty() || username.isEmpty())
+				try{
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/miniproject?useSSL=false", "root","mini_project1");
+					username = textField.getText();
+					String password = new String(passwordField.getPassword());
+			        	if(password.isEmpty() || username.isEmpty())
+					{
+						JOptionPane.showMessageDialog(null, "Please enter Login Details","Login Error", JOptionPane.ERROR_MESSAGE);
+					}
+			        	else{
+			        		Statement st = con.createStatement();
+			        		String sql ="select * from Customer where username='"+username+"' and password = '"+password+"'";
+			        		ResultSet rs = st.executeQuery(sql);
+			        		if(rs.next())
+			        		{
+							Booking.main(null);
+			        		}
+			        		else 
+						{
+							JOptionPane.showMessageDialog(null, "Username or Password incorrect!","Login Error", JOptionPane.INFORMATION_MESSAGE);
+							passwordField.setText(null);
+							textField.setText(null);
+						}
+			        	}
+				}catch(Exception e)
 				{
-					JOptionPane.showMessageDialog(null, "Please enter Login Details","Login Error", JOptionPane.ERROR_MESSAGE);
-					textField.setText(null);
-					passwordField.setText(null);
+					System.out.println(e.getMessage());
 				}
-		        else{
-				checkdata(username,password);
 		        }
-			}
 		});
 		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnNewButton_1.setBounds(233, 195, 115, 29);
